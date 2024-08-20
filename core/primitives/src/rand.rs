@@ -68,7 +68,8 @@ impl WeightedIndex {
     pub fn sample(&self, seed: [u8; 32]) -> usize {
         let usize_seed = Self::copy_8_bytes(&seed[0..8]);
         let balance_seed = Self::copy_16_bytes(&seed[8..24]);
-        let uniform_index = usize::from_le_bytes(usize_seed) % self.aliases.len();
+        // truncate size for wasm32
+        let uniform_index = usize::from_le_bytes(usize_seed[0..4]) % self.aliases.len();
         let uniform_weight = Balance::from_le_bytes(balance_seed) % self.weight_sum;
 
         if uniform_weight < self.no_alias_odds[uniform_index] {
